@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "ZeroDesperdício",
+    "slug": "zerodesperdicio",
+    "scheme": "zerodesperdicio",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "br.zerodesperdicio.app"
+    },
+    "android": {
+      "package": "br.zerodesperdicio.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#174B38",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar"
+    ]
+  }
+}

@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel de Inteligência Territorial</title>
+<style>
+:root{--bg:#F2F2F3;--surface:#fff;--surface2:#F8F8F9;--primary:#111111;--primary2:#2B2B2B;--accent:#ED145B;--soft:#F1E9EC;--text:#141414;--muted:#5C5C63;--border:#E1E1E4;
+--high:#B42318;--highbg:#FDE4E1;--med:#8A5A00;--medbg:#FFF1CC;--low:#2F855A;--lowbg:#E3F4EA;--shadow:0 1px 2px rgba(0,0,0,.06),0 6px 18px rgba(0,0,0,.07);--r:16px;font-size:16px}
+@media (prefers-color-scheme:dark){body:not(.light):not(.hc){--bg:#0B0B0C;--surface:#161618;--surface2:#1D1D20;--primary:#F2F2F3;--primary2:#2B2B2B;--accent:#FF4D85;--soft:#2A1A21;--text:#F2F2F3;--muted:#A8A8B0;--border:#2B2B30;--highbg:#3A1C1A;--medbg:#3A2E10;--lowbg:#12301F;--high:#FF8A7E;--med:#F2C25B;--low:#6FD3A0;--shadow:0 1px 2px rgba(0,0,0,.5)}}
+body.dark{--bg:#0B0B0C;--surface:#161618;--surface2:#1D1D20;--primary:#F2F2F3;--primary2:#2B2B2B;--accent:#FF4D85;--soft:#2A1A21;--text:#F2F2F3;--muted:#A8A8B0;--border:#2B2B30;--highbg:#3A1C1A;--medbg:#3A2E10;--lowbg:#12301F;--high:#FF8A7E;--med:#F2C25B;--low:#6FD3A0;--shadow:0 1px 2px rgba(0,0,0,.4)}
+body.hc{--bg:#fff;--surface:#fff;--surface2:#fff;--soft:#F1F1F1;--text:#000;--muted:#222;--border:#000;--primary:#000;--primary2:#000;--accent:#B00035;--shadow:none}
+body.big{font-size:18px}body.bigger{font-size:20px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45;-webkit-font-smoothing:antialiased}
+.app{min-height:100vh;display:grid;grid-template-columns:1fr}
+.side{position:fixed;z-index:10;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--border);box-shadow:0 -4px 16px rgba(16,40,60,.08)}
+.brand{display:none}
+#tabs{display:flex}
+#tabs button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;border:0;background:none;font:inherit;font-size:.72rem;font-weight:700;color:var(--muted);cursor:pointer;position:relative}
+#tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#tabs button[aria-selected=true]{color:var(--accent)}
+#tabs button[aria-selected=true]::before{content:"";position:absolute;top:0;left:25%;right:25%;height:3px;border-radius:0 0 4px 4px;background:var(--accent)}
+.badgecount{position:absolute;top:8px;left:calc(50% + 6px);background:var(--high);color:#fff;border-radius:999px;font-size:.65rem;padding:0 6px;min-width:18px;text-align:center}
+.content{padding-bottom:84px}
+.top{background:linear-gradient(120deg,#000 0%,#161616 55%,#ED145B 150%);color:#fff;padding:20px 16px 56px;border-bottom:4px solid #ED145B}
+.top .in{max-width:1080px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.top h1{margin:0;font-size:1.35rem;letter-spacing:-.01em}
+.top p{margin:2px 0 0;opacity:.85;font-size:.9rem}
+.top .pill{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:6px 12px;border-radius:999px;font-size:.8rem;font-weight:600}
+main{max-width:1080px;margin:-36px auto 0;padding:0 16px 24px;display:grid;gap:16px}
+.grid2{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;display:grid;gap:10px;box-shadow:var(--shadow);align-content:start}
+h2{margin:0;font-size:1.05rem;letter-spacing:-.005em}h3{margin:0;font-size:.95rem}
+.sec-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-top:6px}
+.muted{color:var(--muted);font-size:.85rem}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{min-height:42px;padding:0 16px;border-radius:999px;border:1.5px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-weight:600;font-size:.9rem;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--accent)}
+.chip[aria-checked=true]{background:var(--primary);border-color:var(--primary);color:#fff}
+body:not(.hc) .chip[aria-checked=true]{color:var(--surface)}
+.scroll{overflow-x:auto;scrollbar-width:thin;padding-bottom:4px}.scroll .chips{flex-wrap:nowrap}.scroll .chip{white-space:nowrap}
+.btn{min-height:48px;padding:0 20px;border-radius:12px;border:2px solid var(--primary);background:var(--primary);color:#fff;font:inherit;font-weight:700;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+body:not(.hc) .btn:not(.sec):not(.danger){color:var(--surface)}
+.btn:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn.sec{background:transparent;color:var(--primary)}.btn.danger{background:var(--high);border-color:var(--high);color:#fff}
+.btn.sm{min-height:38px;padding:0 14px;font-size:.85rem}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1}.row.nf>*{flex:none}.row>.badge{flex:none}.row>.muted{flex:none}
+.hero{background:linear-gradient(135deg,#000,#222 70%,#3a0b1c);color:#fff;border:0;border-top:4px solid #ED145B;padding:20px}
+body:not(.hc) .hero{color:#fff}
+.hero .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.hero .k{background:rgba(255,255,255,.14);border-radius:14px;padding:12px;text-align:center}
+.hero .k b{font-size:2rem;display:block;line-height:1.1}
+.hero .k span{font-size:.8rem;opacity:.9}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px;text-align:left;font:inherit;color:inherit;cursor:pointer;box-shadow:var(--shadow);display:grid;gap:2px;position:relative;overflow:hidden;transition:.15s}
+.tile:hover{transform:translateY(-2px)}
+.tile.sel{outline:3px solid var(--accent);outline-offset:-1px}
+.tile .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:1.1rem;margin-bottom:4px}
+.tile .v{font-size:1.65rem;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+.tile .d{font-weight:700;font-size:.85rem;display:inline-flex;gap:4px;align-items:center;margin-top:4px;padding:2px 8px;border-radius:999px;justify-self:start}
+.d.up{background:var(--highbg);color:var(--high)}.d.warn{background:var(--medbg);color:var(--med)}.d.flat{background:var(--soft);color:var(--muted)}
+.spark{width:100%;height:34px;margin-top:6px}
+.badge{display:inline-flex;gap:4px;align-items:center;padding:3px 11px;border-radius:999px;font-weight:800;font-size:.78rem}
+.high{background:var(--highbg);color:var(--high)}.medium{background:var(--medbg);color:var(--med)}.low{background:var(--lowbg);color:var(--low)}
+.alert{cursor:pointer;border:1px solid var(--border);border-left:6px solid;text-align:left;font:inherit;color:inherit;background:var(--surface);border-radius:var(--r);padding:16px;display:grid;gap:8px;width:100%;box-shadow:var(--shadow);transition:.15s}
+.alert:hover{transform:translateY(-2px)}
+.meter{height:10px;border-radius:999px;background:var(--soft);overflow:hidden}.meter i{display:block;height:100%;border-radius:999px}
+.banner{background:var(--soft);border-left:5px solid var(--accent);border-radius:12px;padding:12px 14px;font-size:.9rem}
+.banner.warn{background:var(--medbg);border-color:var(--med)}
+.banner.err{background:var(--highbg);border-color:var(--high)}
+label{font-weight:700;font-size:.9rem;display:block;margin-bottom:4px}
+input,textarea{width:100%;min-height:48px;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;font:inherit;background:var(--surface2);color:var(--text);transition:.15s}
+input:focus,textarea:focus{border-color:var(--accent);background:var(--surface)}
+textarea{min-height:92px;resize:vertical}
+.err{color:var(--high);font-size:.85rem;min-height:1.3em;margin-top:2px}input.bad,textarea.bad{border:2px solid var(--high)}
+svg text{fill:var(--muted);font-size:11px}
+ul{margin:0;padding-left:20px;display:grid;gap:6px}
+.hidden{display:none}
+.rank{display:grid;gap:12px}
+.rank .bar{height:12px;border-radius:999px;background:var(--soft);overflow:hidden}.rank .bar i{display:block;height:100%;border-radius:999px}
+.empty{text-align:center;padding:28px 16px;display:grid;gap:6px;justify-items:center}
+.empty .big{font-size:2.2rem}
+.skel{height:14px;border-radius:8px;background:linear-gradient(90deg,var(--soft),var(--surface2),var(--soft));background-size:200% 100%;animation:sk 1.2s infinite}
+@keyframes sk{to{background-position:-200% 0}}
+#privacy{position:fixed;inset:0;background:linear-gradient(160deg,#000,#1a1a1a 55%,#ED145B 160%);z-index:30;overflow:auto;padding:20px}
+#privacy .card{background:rgba(255,255,255,.97);color:#14212B}
+#privacy .card .muted{color:#4A4A50}#privacy .card h2{color:#000;border-left:4px solid #ED145B;padding-left:8px}#privacy .btn{background:#ED145B;border-color:#ED145B;color:#fff}
+:focus-visible{outline:3px solid #ED145B;outline-offset:2px}
+@media(min-width:900px){
+ .app{grid-template-columns:240px 1fr}
+ .side{position:sticky;top:0;height:100vh;left:auto;right:auto;bottom:auto;border-top:0;border-right:1px solid var(--border);box-shadow:none;padding:20px 12px;display:flex;flex-direction:column;gap:24px}
+ .brand{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--text);padding:4px 8px;line-height:1.15}
+ .brand i{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#000,#ED145B);display:grid;place-items:center;color:#fff;font-style:normal;font-size:1.2rem;flex:none}
+ #tabs{flex-direction:column;gap:4px}
+ #tabs button{flex:none;flex-direction:row;justify-content:flex-start;gap:12px;min-height:48px;padding:0 14px;border-radius:12px;font-size:.95rem}
+ #tabs button[aria-selected=true]{background:var(--soft);color:var(--accent)}
+ #tabs button[aria-selected=true]::before{display:none}
+ .badgecount{position:static;margin-left:auto}
+ .content{padding-bottom:0}
+ .top{padding:28px 32px 64px}
+ main{padding:0 32px 40px}
+ .grid2{grid-template-columns:1.6fr 1fr}
+ .tiles{grid-template-columns:repeat(4,1fr)}
+ .hero .k b{font-size:2.4rem}
+}
+@media print{.side{display:none}.top{background:#fff;color:#000}}
+</style>
+</head>
+<body>
+<div id="privacy" class="hidden" role="dialog" aria-modal="true" aria-labelledby="ptitle">
+ <div style="max-width:620px;margin:0 auto;display:grid;gap:16px">
+  <h1 id="ptitle" style="color:#fff;margin:8px 0 0;border-left:6px solid #ED145B;padding-left:12px">Painel de Inteligência Territorial</h1>
+  <div class="card"><h2>Privacidade por padrão</h2>
+   <p>• Usa apenas dados agregados por bairro (sem nome, CPF, endereço ou localização de pessoas).</p>
+   <p>• Nenhum dado de cidadão é coletado ou enviado.</p>
+   <p>• As decisões registradas ficam só neste navegador e podem ser apagadas em Ajustes.</p>
+   <p>• Os campos de texto bloqueiam CPF, e-mail e telefone.</p></div>
+  <div class="card"><h2>O painel apoia, você decide</h2>
+   <p>Alertas são previsões estatísticas com confiança e limitações explícitas. Nenhuma ação é executada automaticamente.</p></div>
+  <button class="btn" id="accept">Entendi e quero continuar</button>
+ </div>
+</div>
+
+<div class="app">
+ <aside class="side">
+  <div class="brand" aria-hidden="true"><i>◈</i><span>Painel<br>Territorial <small style="display:block;font-weight:600;color:var(--accent);font-size:.7rem;letter-spacing:.08em">FIAP</small></span></div>
+  <nav role="tablist" id="tabs" aria-label="Seções do painel">
+   <button role="tab" data-tab="dash" aria-selected="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Painel</span></button>
+   <button role="tab" data-tab="alerts" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v5M12 18v.01"/></svg><span>Alertas</span><b class="badgecount" id="alertcount" aria-label="alertas ativos"></b></button>
+   <button role="tab" data-tab="dec" aria-selected="false"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 12l2 2 4-4"/></svg><span>Decisões</span></button>
+   <button role="tab" data-tab="set" aria-selected="false"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.5-2-3.4-2.3 1a7 7 0 0 0-2-1.2L14.2 3h-4l-.4 2.7a7 7 0 0 0-2 1.2l-2.3-1-2 3.4 2 1.5a7 7 0 0 0 0 2.4l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 2 1.2l.4 2.7h4l.4-2.7a7 7 0 0 0 2-1.2l2.3 1 2-3.4-2-1.5c.1-.4.1-.8.1-1.2Z"/></svg><span>Ajustes</span></button>
+  </nav>
+ </aside>
+ <div class="content">
+  <header class="top"><div class="in"><div><h1 id="pagetitle">Painel de Inteligência Territorial</h1><p id="pagesub">Apoio à decisão do gestor público</p></div><span class="pill">Dados agregados · sem dados pessoais</span></div></header>
+  <main id="view"></main>
+ </div>
+</div>
+
+<script>
+// ===================== DADOS =====================
+const TERR=[
+ {id:'copacabana',name:'Copacabana',lat:-22.9711,lon:-43.1823},
+ {id:'tijuca',name:'Tijuca',lat:-22.9249,lon:-43.2326},
+ {id:'centro',name:'Centro',lat:-22.9068,lon:-43.1729},
+ {id:'santa-teresa',name:'Santa Teresa',lat:-22.9226,lon:-43.1888},
+ {id:'rocinha',name:'Rocinha',lat:-22.9879,lon:-43.2487}];
+const METRICS=[
+ {k:'water',label:'Água',unit:'L/hab/dia',color:'#1E6FB8',desc:'Consumo médio diário de água por habitante.'},
+ {k:'energy',label:'Energia',unit:'kWh/hab/dia',color:'#B7791F',desc:'Consumo médio diário de energia por habitante.'},
+ {k:'waste',label:'Resíduos',unit:'kg/hab/dia',color:'#2F855A',desc:'Resíduos coletados por habitante.'},
+ {k:'demand',label:'Chamados 156',unit:'chamados/10 mil hab',color:'#6B46C1',desc:'Demanda por serviços urbanos.'},
+ {k:'climate',label:'Temp. máx.',unit:'°C',color:'#C05621',desc:'Temperatura máxima diária.'}];
+const mInfo=k=>METRICS.find(m=>m.k===k);
+const tInfo=id=>TERR.find(t=>t.id===id)||TERR[0];
+const PROFILES={water:{base:190,wk:8,tf:.008,noise:9,min:80},energy:{base:4.2,wk:.25,tf:.009,noise:.35,min:1},
+ waste:{base:1,wk:.12,tf:.01,noise:.09,min:.2},demand:{base:22,wk:3,tf:.012,noise:4.5,min:2}};
+const SCEN={copacabana:{water:3,energy:5},tijuca:{demand:3.2,waste:.8},centro:{},'santa-teresa':{demand:2.2,water:1.2},rocinha:{waste:3.5,demand:2}};
+
+function mulberry32(a){return()=>{a=(a+0x6d2b79f5)>>>0;let t=a;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+function hash(s){let h=2166136261;for(const c of s){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0}
+const iso=d=>d.toISOString().slice(0,10);
+const addD=(d,n)=>{const r=new Date(d.getTime());r.setUTCDate(r.getUTCDate()+n);return r};
+function todayIso(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+const fmtD=s=>s.slice(0,10).split('-').reverse().join('/');
+const fmtN=(n,d=1)=>n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtP=n=>(n>0?'+':'')+fmtN(n)+'%';
+
+function genSeries(t,end,days=90){
+ const rand=mulberry32(hash(t.id)),sc=SCEN[t.id]||{},out={};
+ for(const m of ['water','energy','waste','demand']){
+  const p=PROFILES[m],scale=.85+rand()*.3,mult=sc[m]??.15,pts=[];
+  for(let i=days-1;i>=0;i--){
+   const d=addD(end,-i),idx=days-1-i,w=Math.sin(d.getUTCDay()/7*2*Math.PI)*p.wk;
+   const td=Math.max(0,idx-(days-14)),tr=p.base*scale*p.tf*mult*td,nz=(rand()-.5)*2*p.noise;
+   pts.push({date:iso(d),value:Math.round(Math.max(p.min,p.base*scale+w+tr+nz)*100)/100});
+  }
+  out[m]=pts;
+ }
+ const temps=[];
+ for(let i=days-1;i>=0;i--){const idx=days-1-i;temps.push({date:iso(addD(end,-i)),value:Math.round((29+Math.sin(idx/30*Math.PI)*2+idx*.03+(rand()-.5)*2)*10)/10})}
+ out.climate=temps;return out;
+}
+
+// ===================== PREVISÃO =====================
+const mean=a=>a.reduce((x,y)=>x+y,0)/(a.length||1);
+const stdv=a=>{const m=mean(a);return Math.sqrt(mean(a.map(x=>(x-m)**2)))};
+function ols(ys){const n=ys.length,xs=ys.map((_,i)=>i),mx=mean(xs),my=mean(ys);let nu=0,de=0;
+ for(let i=0;i<n;i++){nu+=(xs[i]-mx)*(ys[i]-my);de+=(xs[i]-mx)**2}const b=de?nu/de:0;return{a:my-b*mx,b}}
+const dow=s=>new Date(s+'T00:00:00Z').getUTCDay();
+const addIso=(s,n)=>iso(addD(new Date(s+'T00:00:00Z'),n));
+function forecast(series){
+ const h=series.slice(-28),ys=h.map(p=>p.value),n=ys.length;
+ if(n<7)throw new Error('Histórico insuficiente');
+ const f1=ols(ys),det=ys.map((y,i)=>y-(f1.a+f1.b*i)),season=Array(7).fill(0);
+ if(n>=14){const bk=Array.from({length:7},()=>[]);h.forEach((p,i)=>bk[dow(p.date)].push(det[i]));bk.forEach((b,k)=>season[k]=b.length?mean(b):0)}
+ const des=ys.map((y,i)=>y-season[dow(h[i].date)]),{a,b}=ols(des);
+ const fit=ys.map((_,i)=>a+b*i+season[dow(h[i].date)]),res=ys.map((y,i)=>y-fit[i]);
+ const ssR=res.reduce((s,r)=>s+r*r,0),my=mean(ys),ssT=ys.reduce((s,y)=>s+(y-my)**2,0);
+ const r2=ssT?Math.max(0,Math.min(1,1-ssR/ssT)):0,pr=n>=14?8:2;
+ const adj=n-pr-1>0?Math.max(0,1-(1-r2)*(n-1)/(n-pr-1)):0,rs=stdv(res),last=h[n-1].date,pred=[];
+ for(let k=1;k<=7;k++){const d=addIso(last,k);pred.push({date:d,value:Math.round((a+b*(n-1+k)+season[dow(d)])*100)/100})}
+ const base=mean(ys.slice(-14)),pm=mean(pred.map(p=>p.value)),ch=base?(pm-base)/base*100:0;
+ const rel=my?rs/Math.abs(my):1;
+ const conf=Math.max(.2,Math.min(.85,.3*adj+.45*(1-Math.min(1,rel*6))+.25*Math.min(1,n/28)));
+ return{history:h,predicted:pred,baseline:base,predictedMean:pm,changePct:ch,confidence:Math.round(conf*100)/100,r2:Math.round(r2*100)/100,residualStd:rs,sampleSize:n};
+}
+const confLabel=c=>c>=.7?'Alta':c>=.45?'Média':'Baixa';
+const sevOf=c=>c>=15?'high':c>=8?'medium':null;
+const SEVL={high:'Alta',medium:'Média',low:'Baixa'},SEVI={high:'▲',medium:'◆',low:'●'};
+
+// ===================== ALERTAS =====================
+const LAB={water:'consumo de água',energy:'consumo de energia',waste:'geração de resíduos',demand:'demanda por serviços (156)'};
+const ACT={water:['Verificar pressão e possíveis perdas na rede do bairro','Avaliar comunicado de uso consciente com a concessionária'],
+ energy:['Alinhar com a distribuidora a previsão de pico de carga','Revisar a programação de iluminação pública e prédios municipais'],
+ waste:['Avaliar reforço temporário da frequência de coleta','Checar pontos críticos de descarte irregular'],
+ demand:['Avaliar reforço de equipes de zeladoria na região','Priorizar chamados por risco (drenagem, iluminação, árvores)']};
+const COMMON=['Modelo simples (tendência linear + sazonalidade semanal) sobre 28 dias; não captura eventos pontuais.',
+ 'A confiança é uma heurística de qualidade do ajuste, não uma probabilidade calibrada.',
+ 'A previsão apoia a decisão humana: não deve ser usada para ações automáticas de alto impacto.'];
+function buildAlerts(tid,fc,weather){
+ const al=[],heat=weather?weather.days.filter(d=>d.tempMax>=33):[],fd=weather?weather.days.slice(-7):[];
+ for(const m of Object.keys(LAB)){
+  const f=fc[m],sev=sevOf(f.changePct);if(!sev)continue;
+  const just=[`Média prevista dos próximos 7 dias: ${fmtN(f.predictedMean,2)}, contra ${fmtN(f.baseline,2)} nos últimos 14 dias (${fmtP(f.changePct)}).`,
+   `Modelo ajustado em ${f.sampleSize} dias de histórico (R² = ${fmtN(f.r2,2)}).`];
+  const lim=[...COMMON];
+  if((m==='water'||m==='energy')&&heat.length)just.push(`Previsão de calor: ${heat.length} dia(s) com máxima ≥ 33 °C, fator que costuma elevar o consumo.`);
+  if(f.confidence<.45)lim.unshift('Confiança baixa: os dados recentes variam muito em relação ao padrão ajustado.');
+  al.push({id:`${tid}-${m}-${sev}`,tid,metric:m,sev,title:`Alta prevista ${m==='demand'?'na':m==='waste'?'na':'no'} ${LAB[m]}`,summary:`Projeção de ${fmtP(f.changePct)} nos próximos 7 dias.`,just,conf:f.confidence,lim,actions:ACT[m]});
+ }
+ if(fd.length){
+  const mx=Math.max(...fd.map(d=>d.tempMax)),hot=fd.find(d=>d.tempMax===mx);
+  if(mx>=33){const sev=mx>=36?'high':'medium';
+   al.push({id:`${tid}-climate-heat-${sev}`,tid,metric:'climate',sev,title:'Onda de calor prevista',summary:`Máxima prevista de ${fmtN(mx)} °C em ${fmtD(hot.date)}.`,
+    just:[`Previsão de máxima de ${fmtN(mx)} °C nos próximos 7 dias.`,'Calor intenso aumenta riscos à saúde de idosos, crianças e pessoas em situação de rua.'],conf:.75,
+    lim:['Previsão meteorológica global (Open-Meteo), sem calibração para o microclima do bairro.','A incerteza aumenta nos dias mais distantes.'],
+    actions:['Avaliar pontos de hidratação e abrigos climatizados','Reforçar comunicação preventiva da saúde para grupos de risco']})}
+  const mr=Math.max(...fd.map(d=>d.precipMm)),rd=fd.find(d=>d.precipMm===mr);
+  if(mr>=30){const sev=mr>=60?'high':'medium';
+   al.push({id:`${tid}-climate-rain-${sev}`,tid,metric:'climate',sev,title:'Chuva intensa prevista',summary:`Até ${fmtN(mr,0)} mm em ${fmtD(rd.date)}.`,
+    just:[`Acumulado diário previsto de ${fmtN(mr,0)} mm.`,'Chuva forte tende a elevar chamados de drenagem e queda de árvores.'],conf:.7,
+    lim:['Previsão de precipitação é mais incerta que a de temperatura.','Não considera a condição atual de encostas e galerias.'],
+    actions:['Alinhar prontidão com Defesa Civil','Verificar limpeza de bueiros em pontos críticos']})}
+ }
+ const o={high:0,medium:1,low:2};return al.sort((a,b)=>o[a.sev]-o[b.sev]||b.conf-a.conf);
+}
+function analyze(tid){
+ const today=todayIso(),series=genSeries(tInfo(tid),new Date(today+'T00:00:00Z')),w=S.weather[tid]||null;
+ if(w){const past=w.days.filter(d=>d.date<=today).map(d=>({date:d.date,value:d.tempMax}));if(past.length)series.climate=past}
+ const fc={};for(const m of ['water','energy','waste','demand'])fc[m]=forecast(series[m]);
+ return{series,fc,alerts:buildAlerts(tid,fc,w),weather:w,today};
+}
+
+// ===================== CLIMA (Open-Meteo) =====================
+async function loadWeather(tid){
+ S.wStatus='loading';render();
+ try{
+  const t=tInfo(tid),p=new URLSearchParams({latitude:t.lat,longitude:t.lon,daily:'temperature_2m_max,temperature_2m_min,precipitation_sum',past_days:14,forecast_days:7,timezone:'America/Sao_Paulo'});
+  const r=await fetch('https://api.open-meteo.com/v1/forecast?'+p);
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  const j=await r.json(),d=j.daily,days=[];
+  d.time.forEach((date,i)=>{if(d.temperature_2m_max[i]==null||d.temperature_2m_min[i]==null)return;
+   days.push({date,tempMax:d.temperature_2m_max[i],tempMin:d.temperature_2m_min[i],precipMm:d.precipitation_sum[i]??0})});
+  if(!days.length)throw new Error('sem dados válidos');
+  S.weather[tid]={fetchedAt:new Date().toISOString(),days};S.wStatus='ok';S.wErr=null;
+ }catch(e){S.wStatus='error';S.wErr=e.message}
+ save();render();
+}
+
+// ===================== ESTADO / PERSISTÊNCIA =====================
+const KEY='painel-territorial-web-v1';
+let S={theme:'auto',tid:'copacabana',weather:{},decisions:[],scale:'',hc:false,accepted:false,tab:'dash',metric:'water',wStatus:'idle',wErr:null,
+ alertId:null,form:null,errors:{},reviewed:false,formOpen:false};
+try{const raw=JSON.parse(localStorage.getItem(KEY)||'{}');for(const k of ['tid','weather','decisions','scale','hc','accepted','theme'])if(k in raw)S[k]=raw[k]}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify({theme:S.theme,tid:S.tid,weather:S.weather,decisions:S.decisions,scale:S.scale,hc:S.hc,accepted:S.accepted}))}catch(e){}}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// ===================== VALIDAÇÃO =====================
+const PII=[[/\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/,'CPF'],[/[\w.+-]+@[\w-]+\.[\w.-]+/,'e-mail'],[/(\(?\d{2}\)?\s?)?\d{4,5}-?\d{4}\b/,'telefone']];
+const findPii=t=>{for(const[r,l]of PII)if(r.test(t))return l;return null};
+function parseBr(s){const m=/^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s.trim());if(!m)return null;
+ const d=new Date(Date.UTC(+m[3],+m[2]-1,+m[1]));
+ return d.getUTCFullYear()==m[3]&&d.getUTCMonth()==m[2]-1&&d.getUTCDate()==m[1]?`${m[3]}-${m[2]}-${m[1]}`:null}
+function validate(f){
+ const e={},a=f.action.trim(),r=f.rationale.trim(),p=f.responsible.trim();
+ if(a.length<10)e.action='Descreva a ação com pelo menos 10 caracteres.';else if(findPii(a))e.action=`Remova dados pessoais (${findPii(a)}).`;
+ if(r.length<20)e.rationale='Registre a justificativa (mín. 20 caracteres).';else if(findPii(r))e.rationale=`Remova dados pessoais (${findPii(r)}).`;
+ if(p.length<3)e.responsible='Informe o setor ou cargo responsável.';else if(findPii(p))e.responsible='Use o setor/cargo, não dados pessoais.';
+ const d=parseBr(f.deadline);if(!d)e.deadline='Use DD/MM/AAAA com uma data válida.';else if(d<todayIso())e.deadline='O prazo não pode estar no passado.';
+ return e;
+}
+
+// ===================== GRÁFICO SVG =====================
+function chart(hist,pred,unc,color,title,unit){
+ const W=700,H=220,P={t:12,r:12,b:26,l:46},all=[...hist,...pred],band=pred.length?unc*1.64:0;
+ const vs=all.map(p=>p.value),mn=Math.min(...vs)-band,mx=Math.max(...vs)+band,sp=(mx-mn)||1,y0=mn-sp*.05,y1=mx+sp*.05;
+ const iw=W-P.l-P.r,ih=H-P.t-P.b,X=i=>P.l+(all.length<=1?0:i/(all.length-1)*iw),Y=v=>P.t+(1-(v-y0)/(y1-y0))*ih;
+ const path=(pts,off)=>pts.map((p,i)=>`${i?'L':'M'}${X(i+off).toFixed(1)},${Y(p.value).toFixed(1)}`).join(' ');
+ let g='';for(const t of [0,.5,1]){const v=y0+(y1-y0)*t;g+=`<line x1="${P.l}" x2="${W-P.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--border)"/><text x="${P.l-6}" y="${Y(v)+4}" text-anchor="end">${fmtN(v,v<10?1:0)}</text>`}
+ let extra='';
+ if(pred.length){
+  const hl=hist.length;
+  extra+=`<rect x="${X(hl-1)}" y="${P.t}" width="${X(all.length-1)-X(hl-1)}" height="${ih}" fill="var(--soft)" opacity=".5"/>`;
+  const up=pred.map((p,i)=>`${i?'L':'M'}${X(hl+i).toFixed(1)},${Y(p.value+band).toFixed(1)}`).join(' ');
+  const dn=[...pred].reverse().map((p,i)=>`L${X(hl+pred.length-1-i).toFixed(1)},${Y(p.value-band).toFixed(1)}`).join(' ');
+  if(band>0)extra+=`<path d="${up} ${dn} Z" fill="${color}" opacity=".18"/>`;
+  extra+=`<path d="${path([hist[hl-1],...pred],hl-1)}" stroke="${color}" stroke-width="2.5" fill="none" stroke-dasharray="6 4"/>`;
+ }
+ const last=hist[hist.length-1],lp=pred[pred.length-1];
+ const alt=`Gráfico de linha: ${title}. Último valor ${fmtN(last.value)} ${unit}`+(lp?`; previsão para ${fmtD(lp.date)}: ${fmtN(lp.value)} ${unit}.`:'.');
+ return `<div><h3>${esc(title)}</h3><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${esc(alt)}">${g}${extra}
+ <path d="${path(hist,0)}" stroke="${color}" stroke-width="2.5" fill="none" stroke-linejoin="round"/>
+ <text x="${P.l}" y="${H-6}">${fmtD(hist[0].date).slice(0,5)}</text><text x="${W-P.r}" y="${H-6}" text-anchor="end">${fmtD(all[all.length-1].date).slice(0,5)}</text></svg>
+ ${pred.length?'<p class="muted">Linha contínua = observado · tracejada = previsão · faixa = incerteza aproximada (~90%)</p>':''}</div>`;
+}
+
+// ===================== TELAS =====================
+function spark(pts,color){
+ const v=pts.map(p=>p.value),mn=Math.min(...v),mx=Math.max(...v),sp=(mx-mn)||1,W=120,H=34;
+ const d=v.map((x,i)=>`${i?'L':'M'}${(i/(v.length-1)*W).toFixed(1)},${(H-3-(x-mn)/sp*(H-6)).toFixed(1)}`).join(' ');
+ return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d} L${W},${H} L0,${H} Z" fill="${color}" opacity=".12"/><path d="${d}" stroke="${color}" stroke-width="2" fill="none" vector-effect="non-scaling-stroke"/></svg>`;
+}
+const ICONS={water:'💧',energy:'⚡',waste:'♻️',demand:'📞',climate:'🌡️'};
+const TITLES={dash:['Painel territorial','Indicadores, previsões e alertas do bairro'],alerts:['Alertas preditivos','Todos os bairros, ordenados por severidade'],dec:['Decisões do gestor','Registro de decisões tomadas por pessoas'],set:['Ajustes e privacidade','Acessibilidade, dados e limitações']};
+
+const meter=c=>{const l=confLabel(c),col=l==='Alta'?'var(--low)':l==='Média'?'var(--med)':'var(--high)';
+ return `<div role="progressbar" aria-label="Nível de confiança ${l}, ${Math.round(c*100)} por cento" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(c*100)}">
+ <div class="row" style="justify-content:space-between"><b>Confiança: ${l}</b><span class="muted">${Math.round(c*100)}%</span></div>
+ <div class="meter"><i style="width:${c*100}%;background:${col}"></i></div></div>`};
+const badge=s=>`<span class="badge ${s}" aria-label="Severidade ${SEVL[s]}">${SEVI[s]} ${SEVL[s]}</span>`;
+const chips=(items,sel,attr)=>`<div class="chips" role="radiogroup">${items.map(([v,l])=>`<button class="chip" role="radio" aria-checked="${v===sel}" ${attr}="${esc(v)}">${v===sel?'✓ ':''}${esc(l)}</button>`).join('')}</div>`;
+const terrChips=()=>`<div class="scroll">${chips(TERR.map(t=>[t.id,t.name]),S.tid,'data-terr')}</div>`;
+function alertCard(a,showT){const m=mInfo(a.metric);
+ return `<button class="alert" style="border-left-color:${m.color}" data-alert="${a.id}" data-at="${a.tid}" aria-label="${esc(a.title)}${showT?' em '+tInfo(a.tid).name:''}. Severidade ${SEVL[a.sev]}. ${esc(a.summary)}">
+ <div class="row" style="justify-content:space-between">${badge(a.sev)}<span class="muted">${m.label}${showT?' · '+esc(tInfo(a.tid).name):''}</span></div>
+ <h2>${esc(a.title)}</h2><span class="muted">${esc(a.summary)}</span>${meter(a.conf)}<b style="color:var(--accent)">Ver justificativa e limitações ›</b></button>`}
+
+function vDash(){
+ const A=analyze(S.tid),t=tInfo(S.tid),m=mInfo(S.metric),today=A.today;
+ const hi=A.alerts.filter(a=>a.sev==='high').length,me=A.alerts.filter(a=>a.sev==='medium').length;
+ let h,p,u=0;
+ if(S.metric==='climate'){h=A.series.climate.slice(-28);p=A.weather?A.weather.days.filter(d=>d.date>today).map(d=>({date:d.date,value:d.tempMax})):[]}
+ else{const f=A.fc[S.metric];h=f.history;p=f.predicted;u=f.residualStd}
+ const rank=S.metric==='climate'?[]:TERR.map(x=>{const a=analyze(x.id);return{n:x.name,c:a.fc[S.metric].changePct}}).sort((a,b)=>b.c-a.c);
+ const mxa=Math.max(1,...rank.map(r=>Math.abs(r.c)));
+ const wc=S.weather[S.tid];
+ const wl=S.wStatus==='loading'?'Atualizando clima…':S.wStatus==='error'?(wc?`Sem conexão com a API de clima. Usando dados salvos de ${fmtD(wc.fetchedAt)}.`:'Sem conexão com a API de clima. Alertas climáticos indisponíveis; a temperatura exibida é sintética.')+` (${esc(S.wErr||'')})`:wc?`Clima: Open-Meteo, atualizado em ${fmtD(wc.fetchedAt)}.`:'Clima ainda não carregado.';
+ return `<div class="card" style="gap:12px"><div class="sec-title"><h2>Bairro</h2><span class="muted">Hoje, ${fmtD(today)}</span></div>${terrChips()}</div>
+ <div class="card hero" aria-label="Resumo: ${hi} alertas altos e ${me} médios">
+  <div><b style="opacity:.85;font-size:.85rem">SITUAÇÃO NOS PRÓXIMOS 7 DIAS · ${esc(t.name).toUpperCase()}</b></div>
+  <div class="kpis"><div class="k"><b>${hi}</b><span>▲ severidade alta</span></div><div class="k"><b>${me}</b><span>◆ severidade média</span></div><div class="k"><b>${A.alerts.length}</b><span>alertas no total</span></div></div>
+  <div style="font-size:.9rem">${hi+me?'Os alertas exigem avaliação humana antes de qualquer ação.':'Nenhum alerta ativo para este bairro.'}</div></div>
+ <div class="banner ${S.wStatus==='error'?'warn':''}" role="status">${S.wStatus==='loading'?'<div class="skel" style="width:60%;margin-bottom:6px"></div>':''}${wl} <button class="btn sec sm" style="margin-left:8px" data-act="reload">⟳ Atualizar clima</button></div>
+ <div><h2>Indicadores</h2><div class="muted">Último dia e variação prevista dos próximos 7 dias vs. últimos 14 dias</div></div>
+ <div class="tiles">${METRICS.filter(x=>x.k!=='climate').map(x=>{const f=A.fc[x.k],c=f.changePct,lv=f.history.at(-1).value,cls=c>=8?'up':c>=4?'warn':'flat';
+  return `<button class="tile ${S.metric===x.k?'sel':''}" data-metric="${x.k}" aria-label="${x.label}: ${fmtN(lv)} ${x.unit}, previsão ${fmtP(c)}">
+  <span class="ic" style="background:${x.color}22">${ICONS[x.k]}</span><span class="muted"><b>${x.label}</b></span><span class="v">${fmtN(lv,lv<10?2:1)}</span><span class="muted">${x.unit}</span>
+  <span class="d ${cls}">${c>.5?'↑':c<-.5?'↓':'→'} ${fmtP(c)} em 7 dias</span>${spark([...f.history.slice(-21),...f.predicted],x.color)}</button>`}).join('')}</div>
+ <div class="grid2"><div class="card"><div class="scroll">${chips(METRICS.map(x=>[x.k,x.label]),S.metric,'data-metric')}</div>
+  <div class="muted">${m.desc} Unidade: ${m.unit}.</div>${chart(h,p,u,m.color,`${m.label} — ${t.name}`,m.unit)}
+  ${S.metric!=='climate'?`<div class="muted">Ajuste: R² ${fmtN(A.fc[S.metric].r2,2)} em ${A.fc[S.metric].sampleSize} dias. Dados sintéticos para demonstração.</div>`:''}</div>
+ ${rank.length?`<div class="card"><h2>Comparativo entre bairros</h2><div class="muted">Variação prevista de ${m.label.toLowerCase()} (7 dias)</div>
+  <div class="rank">${rank.map(r=>`<div aria-label="${r.n}: ${fmtP(r.c)}"><div class="row" style="justify-content:space-between"><b>${esc(r.n)}</b><b style="color:${r.c>=8?'var(--high)':'var(--muted)'}">${fmtP(r.c)}</b></div>
+  <div class="bar"><i style="width:${Math.max(3,Math.abs(r.c)/mxa*100)}%;background:${r.c>=15?'var(--high)':r.c>=8?'var(--med)':m.color}"></i></div></div>`).join('')}</div></div>`:'<div class="card empty"><span class="big">🌡️</span><b>Sem comparativo para temperatura</b><span class="muted">Escolha água, energia, resíduos ou chamados.</span></div>'}</div>
+ <div class="sec-title"><h2>Alertas prioritários</h2><button class="btn sec sm" data-tab="alerts">Ver todos ›</button></div>
+ ${A.alerts.length?A.alerts.slice(0,2).map(a=>alertCard(a,false)).join(''):`<div class="card">Nenhum alerta para ${esc(t.name)} com os dados atuais.</div>`}
+ <div class="banner"><b>ℹ Apoio à decisão</b><br>Previsões são estimativas estatísticas com incerteza. O painel não executa ações: cabe ao gestor avaliar o contexto local e decidir.</div>`;
+}
+let alertFilter='all';
+function vAlerts(){
+ const o={high:0,medium:1,low:2};
+ const all=TERR.flatMap(t=>analyze(t.id).alerts).sort((a,b)=>o[a.sev]-o[b.sev]||b.conf-a.conf);
+ const sh=alertFilter==='all'?all:all.filter(a=>a.sev===alertFilter);
+ return `<div class="banner"><b>ℹ Como ler os alertas</b><br>Cada alerta traz confiança, justificativa e limitações. Abra um alerta para ver detalhes e registrar sua decisão.</div>
+ ${chips([['all',`Todos (${all.length})`],['high','▲ Alta'],['medium','◆ Média']],alertFilter,'data-filter')}
+ ${sh.length?sh.map(a=>alertCard(a,true)).join(''):'<div class="card empty"><span class="big">✅</span><h2>Nenhum alerta nesta categoria</h2></div>'}`;
+}
+function vAlertDetail(){
+ const [tid]=[S.alertTid],A=analyze(tid),a=A.alerts.find(x=>x.id===S.alertId);
+ if(!a)return `<div class="card"><h2>Alerta não encontrado</h2><p class="muted">Ele pode ter deixado de existir após a atualização dos dados.</p><button class="btn sec" data-act="back">Voltar</button></div>`;
+ const m=mInfo(a.metric),t=tInfo(a.tid);let h,p,u=0;
+ if(a.metric==='climate'){h=A.series.climate.slice(-28);p=A.weather?A.weather.days.filter(d=>d.date>A.today).map(d=>({date:d.date,value:d.tempMax})):[]}
+ else{const f=A.fc[a.metric];h=f.history;p=f.predicted;u=f.residualStd}
+ return `<button class="btn sec" data-act="back" style="justify-self:start">‹ Voltar</button>
+ <div>${badge(a.sev)}<h2 style="font-size:1.5rem">${esc(a.title)}</h2><div class="muted">${esc(t.name)} · ${m.label}</div><p>${esc(a.summary)}</p></div>
+ <div class="card">${meter(a.conf)}<div class="muted">Confiança ${confLabel(a.conf).toLowerCase()}: heurística que combina qualidade do ajuste, ruído e tamanho do histórico — não é uma probabilidade.</div></div>
+ <div class="card">${chart(h,p,u,m.color,`${m.label} — ${t.name}`,m.unit)}</div>
+ <div class="card"><h2>Por que este alerta foi emitido</h2><ul>${a.just.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+ <div class="card" style="border-color:var(--med)"><h2>⚠ Limitações</h2><ul>${a.lim.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+ <div class="card"><h2>Ações para avaliação</h2><div class="muted">Sugestões genéricas — a escolha depende do contexto local e da sua avaliação.</div><ul>${a.actions.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>
+ <div class="banner warn"><b>⚠ Decisão humana</b><br>O painel não executa nenhuma ação. Registre o que você decidiu e por quê.</div>
+ <button class="btn" data-act="newdec" data-aid="${a.id}" data-at="${a.tid}" data-am="${a.metric}">Registrar decisão sobre este alerta</button>`;
+}
+const field=(k,label,val,hint,ml,multi)=>`<div><label for="f_${k}">${label}</label>
+ ${multi?`<textarea id="f_${k}" data-f="${k}" maxlength="${ml}" class="${S.errors[k]?'bad':''}" aria-describedby="e_${k}">${esc(val)}</textarea>`:`<input id="f_${k}" data-f="${k}" maxlength="${ml}" value="${esc(val)}" class="${S.errors[k]?'bad':''}" aria-describedby="e_${k}" ${k==='deadline'?'placeholder="31/12/2026"':''}>`}
+ <div class="err" id="e_${k}" role="${S.errors[k]?'alert':'note'}">${S.errors[k]?'⚠ '+esc(S.errors[k]):`<span class="muted">${hint}</span>`}</div></div>`;
+function vForm(){
+ const f=S.form;
+ return `<button class="btn sec" data-act="back" style="justify-self:start">‹ Cancelar</button><h2 style="font-size:1.4rem">Registrar decisão</h2>
+ ${f.alertId?'<div class="banner"><b>ℹ Vinculada a um alerta</b><br>Registre o que foi decidido, inclusive se optar por não agir.</div>':''}
+ <div><label>Bairro</label>${chips(TERR.map(t=>[t.id,t.name]),f.tid,'data-ftid')}</div>
+ <div><label>Tema</label>${chips(METRICS.map(m=>[m.k,m.label]),f.metric,'data-fmetric')}</div>
+ ${field('action','Ação decidida',f.action,'Ex.: Reforçar coleta de resíduos às segundas e quintas',200,true)}
+ ${field('rationale','Justificativa',f.rationale,'Por que esta decisão? Considere confiança e limitações.',500,true)}
+ ${field('responsible','Setor ou cargo responsável',f.responsible,'Use o setor (ex.: Secretaria de Zeladoria), nunca dados pessoais',80,false)}
+ ${field('deadline','Prazo (DD/MM/AAAA)',f.deadline,'',10,false)}
+ <label style="display:flex;gap:12px;align-items:center;border:${S.revErr?'2px solid var(--high)':'1.5px solid var(--border)'};border-radius:8px;padding:12px;background:var(--surface);font-weight:400">
+  <input type="checkbox" id="f_rev" style="width:24px;min-height:24px" ${S.reviewed?'checked':''}> Revisei a justificativa, a confiança e as limitações do alerta e assumo a decisão.</label>
+ ${S.revErr?'<div class="err" role="alert">⚠ Confirme a revisão para registrar a decisão.</div>':''}
+ <button class="btn" data-act="savedec">Salvar decisão</button>`;
+}
+const STL={planned:'◔ Planejada',approved:'✔ Aprovada',dismissed:'✕ Descartada'};
+function vDec(){
+ return `<div class="banner"><b>ℹ Registro de decisões</b><br>Apenas decisões tomadas por pessoas. Ficam salvas neste navegador e não contêm dados de cidadãos.</div>
+ <button class="btn" data-act="newdec">+ Nova decisão</button>
+ <div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">${S.decisions.length?S.decisions.map(d=>{const m=mInfo(d.metric);
+  return `<div class="card" style="border-left:5px solid ${m.color}"><div class="row" style="justify-content:space-between"><span class="badge ${d.status==='approved'?'low':d.status==='planned'?'medium':''}" style="${d.status==='dismissed'?'background:var(--soft)':''}">${STL[d.status]}</span><span class="muted">${esc(tInfo(d.tid).name)} · ${m.label}</span></div>
+  <h2>${esc(d.action)}</h2><div class="muted" style="font-size:.95rem">${esc(d.rationale)}</div><div class="muted">Responsável: ${esc(d.responsible)} · Prazo: ${fmtD(d.deadline)}</div>
+  <div class="row">${d.status==='planned'?`<button class="btn" data-act="st" data-id="${d.id}" data-s="approved">Aprovar</button><button class="btn sec" data-act="st" data-id="${d.id}" data-s="dismissed">Descartar</button>`:`<button class="btn sec" data-act="st" data-id="${d.id}" data-s="planned">Reabrir como planejada</button>`}
+  <button class="btn danger" data-act="del" data-id="${d.id}">Excluir</button></div></div>`}).join(''):
+  '<div class="card empty"><span class="big">📋</span><h2>Nenhuma decisão registrada</h2><p class="muted">Abra um alerta e registre o que foi decidido, ou crie uma decisão avulsa.</p></div>'}</div>`;
+}
+function vSet(){
+ return `<div class="grid2" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))"><div class="card"><h2>Acessibilidade</h2><b>Tamanho do texto</b>${chips([['','Normal'],['big','Grande'],['bigger','Muito grande']],S.scale,'data-scale')}
+ <b>Tema</b>${chips([['auto','Automático'],['light','Claro'],['dark','Escuro']],S.theme,'data-theme')}
+ <label style="display:flex;gap:12px;align-items:center;font-weight:600;min-height:48px"><input type="checkbox" id="hc" style="width:24px;min-height:24px" ${S.hc?'checked':''}> Alto contraste</label>
+ <div class="muted">A severidade nunca é indicada só por cor: sempre há ícone e texto. Navegação por teclado e leitor de tela suportados.</div></div>
+ <div class="card"><h2>Privacidade e dados</h2><p>• Dados agregados por bairro: nenhuma informação individual.</p><p>• Sem login e sem rastreamento.</p>
+ <p>• A única chamada de rede é à API Open-Meteo, com coordenadas aproximadas do bairro.</p><p>• Decisões e preferências ficam apenas neste navegador.</p>
+ <button class="btn danger" data-act="clear">Apagar dados locais</button></div>
+ <div class="card"><h2>Fontes de dados</h2><p>• Clima: Open-Meteo (dados públicos).</p><p>• Água, energia, resíduos e chamados 156: séries sintéticas para demonstração, sem relação com dados reais.</p></div>
+ <div class="banner warn"><b>⚠ Limitações</b><br>Modelo simples (tendência linear + sazonalidade semanal); não substitui análise técnica. Eventos extraordinários, obras e feriados não são considerados.</div></div>`;
+}
+
+// ===================== RENDER / EVENTOS =====================
+function render(){
+ document.body.className=(S.hc?'hc ':'')+(S.theme==='dark'?'dark ':S.theme==='light'?'light ':'')+S.scale;
+ document.getElementById('privacy').classList.toggle('hidden',S.accepted);
+ document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===S.tab)));
+ const tt=S.formOpen?['Registrar decisão','Toda decisão é tomada e confirmada por uma pessoa']:S.alertId?['Detalhe do alerta','Justificativa, confiança e limitações']:TITLES[S.tab];
+ document.getElementById('pagetitle').textContent=tt[0];document.getElementById('pagesub').textContent=tt[1];
+ try{const n=analyze(S.tid).alerts.filter(a=>a.sev==='high').length;const c=document.getElementById('alertcount');c.textContent=n||'';c.style.display=n?'':'none'}catch(e){}
+ const v=document.getElementById('view');
+ const active=document.activeElement&&document.activeElement.id;
+ v.innerHTML=S.formOpen?vForm():S.alertId?vAlertDetail():({dash:vDash,alerts:vAlerts,dec:vDec,set:vSet})[S.tab]();
+ if(active&&active.startsWith('f_')){const el=document.getElementById(active);if(el){el.focus();try{el.setSelectionRange(el.value.length,el.value.length)}catch(e){}}}
+}
+function go(tab){S.tab=tab;S.alertId=null;S.formOpen=false;render();window.scrollTo(0,0)}
+document.getElementById('accept').onclick=()=>{S.accepted=true;save();render();loadWeather(S.tid)};
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button');if(!t)return;const d=t.dataset;
+ if(d.tab&&t.closest('#tabs')||(d.tab&&!d.act))return go(d.tab);
+ if(d.terr){S.tid=d.terr;save();render();return loadWeather(S.tid)}
+ if(d.metric&&!S.formOpen){S.metric=d.metric;return render()}
+ if(d.filter){alertFilter=d.filter;return render()}
+ if(d.scale!==undefined&&'scale' in d){S.scale=d.scale;save();return render()}
+ if(d.theme){S.theme=d.theme;save();return render()}
+ if(d.alert){S.alertId=d.alert;S.alertTid=d.at;render();return window.scrollTo(0,0)}
+ if(d.ftid){S.form.tid=d.ftid;return render()}
+ if(d.fmetric){S.form.metric=d.fmetric;return render()}
+ switch(d.act){
+  case'reload':return loadWeather(S.tid);
+  case'back':S.alertId=null;S.formOpen=false;return render();
+  case'newdec':S.form={alertId:d.aid||null,tid:d.at||S.tid,metric:d.am||'water',action:'',rationale:'',responsible:'',deadline:''};
+   S.errors={};S.reviewed=false;S.revErr=false;S.formOpen=true;render();return window.scrollTo(0,0);
+  case'savedec':{S.errors=validate(S.form);S.revErr=!S.reviewed;
+   if(Object.keys(S.errors).length||S.revErr)return render();
+   const f=S.form;S.decisions.unshift({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),alertId:f.alertId,tid:f.tid,metric:f.metric,status:'planned',
+    action:f.action.trim(),rationale:f.rationale.trim(),responsible:f.responsible.trim(),deadline:parseBr(f.deadline),createdAt:new Date().toISOString()});
+   save();S.formOpen=false;S.alertId=null;S.tab='dec';return render()}
+  case'st':S.decisions=S.decisions.map(x=>x.id===d.id?{...x,status:d.s}:x);save();return render();
+  case'del':if(confirm('Excluir esta decisão? Não poderá ser recuperada.')){S.decisions=S.decisions.filter(x=>x.id!==d.id);save();render()}return;
+  case'clear':if(confirm('Apagar decisões, cache de clima e preferências deste navegador?')){S.weather={};S.decisions=[];S.scale='';S.hc=false;save();render()}return;
+ }
+});
+document.addEventListener('input',e=>{
+ const el=e.target;
+ if(el.dataset.f){S.form[el.dataset.f]=el.value;if(S.errors[el.dataset.f]){delete S.errors[el.dataset.f];const er=document.getElementById('e_'+el.dataset.f);if(er){er.textContent='';el.classList.remove('bad')}}}
+});
+document.addEventListener('change',e=>{
+ if(e.target.id==='hc'){S.hc=e.target.checked;save();render()}
+ if(e.target.id==='f_rev'){S.reviewed=e.target.checked;S.revErr=false;render()}
+});
+document.addEventListener('focusout',e=>{
+ const el=e.target;if(S.formOpen&&el.dataset&&el.dataset.f){const er=validate(S.form)[el.dataset.f];
+  if(er){S.errors[el.dataset.f]=er;const box=document.getElementById('e_'+el.dataset.f);if(box){box.textContent='⚠ '+er;el.classList.add('bad')}}}
+});
+render();
+if(S.accepted)loadWeather(S.tid);
+</script>
+</body>
+</html>
